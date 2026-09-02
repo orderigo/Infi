@@ -1,19 +1,5 @@
 @import "tailwindcss";
 
-/* Tailwind v4 theme aliases.
- *
- * Pull the Reactor brand tokens out of @reactor-team/ui/styles.css
- * (loaded in layout.tsx) and re-expose them as Tailwind utilities:
- *
- *   bg-brand / text-brand / border-brand   → cream-gold accent
- *   text-brand-fg                           → readable text on the brand bg
- *   bg-active / text-active                 → "connected/running" green
- *   font-sans / font-mono                   → Aeonik + IBM Plex Mono
- *
- * We deliberately don't import the lib's React components — those
- * use hooks internally and force consumers into "use client". The
- * CSS vars are pure design tokens with no runtime cost.
- */
 @theme {
   --font-sans: var(--reactor-font-sans);
   --font-mono: var(--reactor-font-mono);
@@ -25,13 +11,16 @@
 
 html,
 body {
-  background: #09090b;
+  background: #050508;
   color: #e4e4e7;
   font-family:
     var(--reactor-font-sans),
     system-ui,
     -apple-system,
     sans-serif;
+  background-image:
+    radial-gradient(ellipse 80% 80% at 50% -20%, rgba(120, 119, 198, 0.15), rgba(255, 255, 255, 0)),
+    radial-gradient(circle at 100% 100%, rgba(6, 182, 212, 0.08), transparent 40%);
 }
 
 textarea,
