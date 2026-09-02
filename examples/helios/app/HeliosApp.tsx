@@ -39,8 +39,14 @@ function MainLayout() {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="flex flex-1 flex-col gap-4 p-4 lg:flex-row lg:gap-6 lg:p-6">
-        <aside className="flex w-full flex-col gap-4 lg:w-96 lg:shrink-0">
+      <main className="flex flex-1 flex-col gap-4 p-3 sm:p-4 lg:flex-row lg:gap-6 lg:p-6">
+        {/* Video Main Section - Order 1 on mobile, Order 2 on desktop */}
+        <section className="order-1 flex-1 lg:order-2">
+          <Video />
+        </section>
+
+        {/* Sidebar Controls - Order 2 on mobile, Order 1 on desktop */}
+        <aside className="order-2 flex w-full flex-col gap-3 sm:gap-4 lg:order-1 lg:w-96 lg:shrink-0">
           <StatusBadge />
           <CommandError />
           <VoiceAgentPanel
@@ -59,9 +65,6 @@ function MainLayout() {
           <ImageStarter />
           <SnapClip />
         </aside>
-        <section className="flex-1">
-          <Video />
-        </section>
       </main>
     </div>
   );

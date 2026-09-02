@@ -34,9 +34,9 @@ export function VoiceAgentPanel({
   };
 
   return (
-    <div className="rounded-xl border border-cyan-500/30 bg-zinc-950/80 p-4 shadow-[0_0_20px_rgba(6,182,212,0.15)] backdrop-blur-md">
+    <div className="rounded-xl border border-cyan-500/30 bg-zinc-950/80 p-3 sm:p-4 shadow-[0_0_20px_rgba(6,182,212,0.15)] backdrop-blur-md">
       {/* HUD Header */}
-      <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-800/80 pb-2.5 sm:pb-3">
         <div className="flex items-center gap-2">
           <div
             className={`h-2.5 w-2.5 rounded-full ${
@@ -45,14 +45,14 @@ export function VoiceAgentPanel({
                 : "bg-zinc-600"
             }`}
           />
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-cyan-400">
+          <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-cyan-400 sm:text-xs">
             Voice Agent · Gemini 2.5 Flash
           </span>
         </div>
 
         <button
           onClick={isConnected ? onDisconnect : onConnect}
-          className={`rounded-lg px-3 py-1 text-xs font-mono font-semibold transition-all ${
+          className={`rounded-lg px-2.5 py-1 text-[11px] font-mono font-semibold transition-all sm:px-3 sm:text-xs ${
             isConnected
               ? "border border-red-500/40 bg-red-950/30 text-red-400 hover:bg-red-900/50"
               : "border border-cyan-500/40 bg-cyan-950/30 text-cyan-300 hover:bg-cyan-900/50 shadow-[0_0_10px_rgba(6,182,212,0.2)]"
@@ -64,8 +64,8 @@ export function VoiceAgentPanel({
 
       {/* Audio Waveform & Status Visualizer */}
       {isConnected && (
-        <div className="my-3 rounded-lg border border-zinc-800 bg-zinc-900/50 p-3">
-          <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400">
+        <div className="my-2.5 rounded-lg border border-zinc-800 bg-zinc-900/50 p-2.5 sm:my-3 sm:p-3">
+          <div className="flex flex-wrap items-center justify-between gap-1 text-[10px] font-mono text-zinc-400 sm:text-[11px]">
             <span>
               STATUS:{" "}
               <strong
@@ -78,17 +78,17 @@ export function VoiceAgentPanel({
                 }
               >
                 {isSpeaking
-                  ? "SPEAKING NATIVE AUDIO"
+                  ? "SPEAKING AUDIO"
                   : isListening
                   ? "LISTENING..."
                   : "STANDBY"}
               </strong>
             </span>
-            <span>MODEL: GEMINI-2.5-FLASH-NATIVE</span>
+            <span className="hidden sm:inline">MODEL: GEMINI-2.5-FLASH</span>
           </div>
 
           {/* High-tech Audio Frequency Bars Animation */}
-          <div className="mt-2.5 flex items-center justify-center gap-1.5 h-8">
+          <div className="mt-2 flex items-center justify-center gap-1 sm:gap-1.5 h-6 sm:h-8">
             {[...Array(12)].map((_, i) => (
               <div
                 key={i}
@@ -114,24 +114,24 @@ export function VoiceAgentPanel({
 
       {/* Last Executed Tool Call HUD Badge */}
       {lastAction && (
-        <div className="mb-3 rounded-md border border-cyan-500/30 bg-cyan-950/20 p-2 text-[11px] font-mono text-cyan-300">
+        <div className="mb-2.5 rounded-md border border-cyan-500/30 bg-cyan-950/20 p-1.5 text-[10px] font-mono text-cyan-300 sm:mb-3 sm:p-2 sm:text-[11px]">
           <span className="text-zinc-400">EXECUTED FUNCTION: </span>
           <code>{lastAction}</code>
         </div>
       )}
 
       {/* Transcript Log */}
-      <div className="max-h-40 overflow-y-auto space-y-2 pr-1 text-xs font-sans">
+      <div className="max-h-36 overflow-y-auto space-y-2 pr-1 text-xs font-sans sm:max-h-40">
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`rounded-lg p-2.5 border ${
+            className={`rounded-lg p-2 sm:p-2.5 border ${
               msg.sender === "user"
-                ? "border-zinc-800 bg-zinc-900/60 text-zinc-200 ml-4"
-                : "border-cyan-500/20 bg-cyan-950/20 text-cyan-100 mr-4"
+                ? "border-zinc-800 bg-zinc-900/60 text-zinc-200 ml-2 sm:ml-4"
+                : "border-cyan-500/20 bg-cyan-950/20 text-cyan-100 mr-2 sm:mr-4"
             }`}
           >
-            <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400 mb-1">
+            <div className="flex items-center justify-between text-[9px] font-mono text-zinc-400 mb-1 sm:text-[10px]">
               <span>{msg.sender === "user" ? "USER" : "GEMINI 2.5 FLASH"}</span>
               <span>{msg.timestamp.toLocaleTimeString()}</span>
             </div>
@@ -142,13 +142,13 @@ export function VoiceAgentPanel({
 
       {/* Direct Voice / Text Command Input */}
       {isConnected && (
-        <form onSubmit={handleSubmit} className="mt-3 flex gap-2">
+        <form onSubmit={handleSubmit} className="mt-2.5 flex gap-2 sm:mt-3">
           <input
             type="text"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            placeholder="Speak or type instruction (e.g. 'Make it rain in cyberpunk city')..."
-            className="flex-1 rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-500 focus:border-cyan-500 focus:outline-none"
+            placeholder="Speak or type instruction..."
+            className="flex-1 rounded-lg border border-zinc-800 bg-zinc-900 px-2.5 py-1.5 text-xs text-zinc-100 placeholder-zinc-500 focus:border-cyan-500 focus:outline-none sm:px-3"
           />
           <button
             type="submit"
