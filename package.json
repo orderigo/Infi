@@ -4,7 +4,8 @@
   "private": true,
   "description": "Reactor JS SDK - client libraries and tools for building real-time AI video applications",
   "scripts": {
-    "build": "pnpm --filter @reactor-team/js-sdk build",
+    "build": "pnpm --filter helios build",
+    "start": "pnpm --filter helios start",
     "test:unit": "pnpm --filter @reactor-team/js-sdk test:unit",
     "test:integration": "pnpm --filter @reactor-team/js-sdk test:integration",
     "format:check": "prettier --check .",
