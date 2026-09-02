@@ -43,7 +43,7 @@ Open [http://localhost:3000](http://localhost:3000), click **Connect**, and pick
 
 ## Deploy to Railway
 
-This application includes a `railway.json` configuration for 1-click publishing on [Railway](https://railway.app).
+This application includes both root and subdirectory `railway.json` configurations for seamless 1-click publishing on [Railway](https://railway.app).
 
 ### Step-by-Step Deployment:
 
@@ -51,7 +51,7 @@ This application includes a `railway.json` configuration for 1-click publishing 
 2. **Deploy on Railway**:
    - Log in to [Railway Dashboard](https://railway.app/dashboard).
    - Click **New Project** → **Deploy from GitHub repo**.
-   - Select your repository and specify `examples/helios` as the root directory (or Railway will detect `examples/helios/railway.json`).
+   - Select your repository. Railway will detect the root `railway.json` and execute `pnpm --filter helios build` and `pnpm --filter helios start`.
 3. **Set Environment Variables**:
    - Go to your service **Variables** tab on Railway.
    - Add `REACTOR_API_KEY` set to your key (`rk_...`).
