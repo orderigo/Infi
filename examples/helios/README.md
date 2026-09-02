@@ -41,21 +41,23 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000), click **Connect**, and pick a starting point or activate the **Voice Agent**.
 
-## Deploy to Render
+## Deploy to Railway
 
-This application includes a `render.yaml` blueprint for 1-click publishing on [Render](https://render.com).
+This application includes a `railway.json` configuration for 1-click publishing on [Railway](https://railway.app).
 
 ### Step-by-Step Deployment:
 
 1. **Push to GitHub**: Make sure your repository is pushed to GitHub.
-2. **Create New Blueprint on Render**:
-   - Log in to [Render Dashboard](https://dashboard.render.com).
-   - Click **New +** → **Blueprint**.
-   - Connect your repository and select the `examples/helios` root directory (or point to `render.yaml`).
-3. **Configure Environment Variables**:
-   - Under Environment Variables in Render Web Service setting, set `REACTOR_API_KEY` to your key (`rk_...`).
-4. **Deploy**:
-   - Click **Apply**. Render will run `pnpm install && pnpm build` and launch the app on `pnpm start`.
+2. **Deploy on Railway**:
+   - Log in to [Railway Dashboard](https://railway.app/dashboard).
+   - Click **New Project** → **Deploy from GitHub repo**.
+   - Select your repository and specify `examples/helios` as the root directory (or Railway will detect `examples/helios/railway.json`).
+3. **Set Environment Variables**:
+   - Go to your service **Variables** tab on Railway.
+   - Add `REACTOR_API_KEY` set to your key (`rk_...`).
+4. **Generate Public Domain**:
+   - Go to **Settings** → **Networking** → Click **Generate Domain**.
+   - Your Helios AI Voice Agent application is now live on Railway!
 
 ## What you can do with it
 
