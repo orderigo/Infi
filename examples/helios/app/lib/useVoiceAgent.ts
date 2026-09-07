@@ -301,10 +301,12 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
 
               const audioChunkPayload = {
                 realtimeInput: {
-                  audio: {
-                    mimeType: "audio/pcm;rate=16000",
-                    data: base64Audio,
-                  },
+                  mediaChunks: [
+                    {
+                      mimeType: "audio/pcm;rate=16000",
+                      data: base64Audio,
+                    },
+                  ],
                 },
               };
               webSocketRef.current.send(JSON.stringify(audioChunkPayload));
@@ -336,22 +338,22 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
             handleToolCall(data.toolCall.functionCalls);
           }
 
+          const inputTranscript = data.inputTranscription?.text;
+          const outputTranscript = data.outputTranscription?.text;
+          if (inputTranscript || outputTranscript) {
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: Math.random().toString(),
+                sender: inputTranscript ? "user" : "gemini",
+                text: inputTranscript || outputTranscript,
+                timestamp: new Date(),
+              },
+            ]);
+          }
+
           if (data.serverContent) {
             const modelTurn = data.serverContent.modelTurn;
-            const inputTranscript = data.serverContent.inputTranscription?.text;
-            const outputTranscript = data.serverContent.outputTranscription?.text;
-
-            if (inputTranscript || outputTranscript) {
-              setMessages((prev) => [
-                ...prev,
-                {
-                  id: Math.random().toString(),
-                  sender: inputTranscript ? "user" : "gemini",
-                  text: inputTranscript || outputTranscript,
-                  timestamp: new Date(),
-                },
-              ]);
-            }
 
             if (modelTurn && modelTurn.parts) {
               for (const part of modelTurn.parts) {
