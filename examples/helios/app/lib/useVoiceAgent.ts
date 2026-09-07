@@ -160,8 +160,17 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
 
   const connectVoiceAgent = useCallback(async () => {
     try {
-      const tokenRes = await fetch("/api/gemini/token");
+      if (webSocketRef.current || isConnected) return;
+
+      const tokenRes = await fetch("/api/gemini/token", { cache: "no-store" });
       const tokenData = await tokenRes.json().catch(() => ({ fallback: true }));
+
+      if (!tokenRes.ok) {
+        throw new Error(
+          (tokenData as { error?: string }).error ||
+            `Gemini token endpoint failed (${tokenRes.status})`
+        );
+      }
 
       const { accessToken, apiKey, projectId, location, fallback } = tokenData as {
         accessToken?: string;
@@ -178,7 +187,7 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
           {
             id: Math.random().toString(),
             sender: "gemini",
-            text: "Voice Agent Connected (Assistant Mode). Type commands below or click controls to steer the Helios video stream. (To enable Gemini 2.5 Live WebSocket audio streaming, set GEMINI_API_KEY in .env)",
+            text: "Voice Agent connected in assistant mode. Add GOOGLE_SERVICE_ACCOUNT_JSON to the server environment to enable live microphone audio.",
             timestamp: new Date(),
           },
         ]);
@@ -214,20 +223,21 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
       let wsUrl = "";
       if (accessToken) {
         const host = `${location}-aiplatform.googleapis.com`;
-        wsUrl = `wss://${host}/ws/google.cloud.aiplatform.v1beta1.LlmBidiService/BidiGenerateContent?access_token=${accessToken}`;
+        wsUrl = `wss://${host}/ws/google.cloud.aiplatform.v1beta1.LlmBidiService/BidiGenerateContent?access_token=${encodeURIComponent(accessToken)}`;
       } else if (apiKey) {
-        wsUrl = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key=${apiKey}`;
+        wsUrl = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${encodeURIComponent(apiKey)}`;
       }
 
       const ws = new WebSocket(wsUrl);
       webSocketRef.current = ws;
+      let setupComplete = false;
 
       ws.onopen = () => {
         setIsConnected(true);
 
         const modelPath = accessToken
-          ? `projects/${projectId}/locations/${location}/publishers/google/models/gemini-2.0-flash-exp`
-          : "models/gemini-2.0-flash-exp";
+          ? `projects/${projectId}/locations/${location}/publishers/google/models/gemini-live-2.5-flash-native-audio`
+          : "models/gemini-live-2.5-flash-native-audio";
 
         const setupMessage = {
           setup: {
@@ -260,7 +270,7 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
           {
             id: Math.random().toString(),
             sender: "gemini",
-            text: "Gemini Multimodal Live API connected via WebSocket. Speak into your mic or type commands to direct the Helios video stream in real-time.",
+            text: "Gemini Live WebSocket opened. Waiting for session setup confirmation...",
             timestamp: new Date(),
           },
         ]);
@@ -279,18 +289,20 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
             const avgVolume = sum / inputBuffer.length;
             setIsListening(avgVolume > 0.01);
 
-            if (webSocketRef.current && webSocketRef.current.readyState === WebSocket.OPEN) {
+            if (
+              setupComplete &&
+              webSocketRef.current &&
+              webSocketRef.current.readyState === WebSocket.OPEN
+            ) {
               const pcmBuffer = floatTo16BitPCM(inputBuffer);
               const base64Audio = arrayBufferToBase64(pcmBuffer);
 
               const audioChunkPayload = {
                 realtimeInput: {
-                  mediaChunks: [
-                    {
-                      mimeType: "audio/pcm;rate=16000",
-                      data: base64Audio,
-                    },
-                  ],
+                  audio: {
+                    mimeType: "audio/pcm;rate=16000",
+                    data: base64Audio,
+                  },
                 },
               };
               webSocketRef.current.send(JSON.stringify(audioChunkPayload));
@@ -304,6 +316,19 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
+
+          if (data.setupComplete) {
+            setupComplete = true;
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: Math.random().toString(),
+                sender: "gemini",
+                text: "Gemini Live session ready. Speak into your mic or type commands.",
+                timestamp: new Date(),
+              },
+            ]);
+          }
 
           if (data.toolCall && data.toolCall.functionCalls) {
             handleToolCall(data.toolCall.functionCalls);
@@ -339,26 +364,38 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
         console.error("Gemini WebSocket error:", err);
       };
 
-      ws.onclose = () => {
+      ws.onclose = (event) => {
         setIsConnected(false);
         setIsListening(false);
         setIsSpeaking(false);
+        webSocketRef.current = null;
+        if (event.code !== 1000) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: Math.random().toString(),
+              sender: "gemini",
+              text: `Voice connection closed (${event.code}). ${event.reason || "Check the Gemini model, Vertex AI permissions, and server environment variables."}`,
+              timestamp: new Date(),
+            },
+          ]);
+        }
       };
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error("Failed to connect Voice Agent:", msg);
-      setIsConnected(true);
+      setIsConnected(false);
       setMessages((prev) => [
         ...prev,
         {
           id: Math.random().toString(),
           sender: "gemini",
-          text: `Voice Agent Active (Assistant Mode). Type commands below to direct the video stream.`,
+          text: `Voice Agent connection failed: ${msg}`,
           timestamp: new Date(),
         },
       ]);
     }
-  }, [handleToolCall, playIncomingPcmAudio]);
+  }, [handleToolCall, playIncomingPcmAudio, isConnected]);
 
   const disconnectVoiceAgent = useCallback(() => {
     if (webSocketRef.current) {

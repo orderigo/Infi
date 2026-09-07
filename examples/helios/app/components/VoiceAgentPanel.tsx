@@ -46,7 +46,7 @@ export function VoiceAgentPanel({
             }`}
           />
           <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-cyan-400 sm:text-xs">
-            Voice Agent · Gemini 2.5 Flash
+            Voice Agent · Gemini Live 2.5 Native Audio
           </span>
         </div>
 
@@ -84,7 +84,7 @@ export function VoiceAgentPanel({
                   : "STANDBY"}
               </strong>
             </span>
-            <span className="hidden sm:inline">MODEL: GEMINI-2.5-FLASH</span>
+            <span className="hidden sm:inline">MODEL: GEMINI-LIVE-2.5-FLASH-NATIVE-AUDIO</span>
           </div>
 
           {/* High-tech Audio Frequency Bars Animation */}
@@ -132,7 +132,7 @@ export function VoiceAgentPanel({
             }`}
           >
             <div className="flex items-center justify-between text-[9px] font-mono text-zinc-400 mb-1 sm:text-[10px]">
-              <span>{msg.sender === "user" ? "USER" : "GEMINI 2.5 FLASH"}</span>
+              <span>{msg.sender === "user" ? "USER" : "GEMINI LIVE 2.5"}</span>
               <span>{msg.timestamp.toLocaleTimeString()}</span>
             </div>
             <p className="leading-snug">{msg.text}</p>
