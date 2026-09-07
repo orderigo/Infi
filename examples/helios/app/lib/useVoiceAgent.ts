@@ -9,6 +9,7 @@ export interface ToolCallHandlerProps {
   onResume?: () => void;
   onReset?: () => void;
   onSnapClip?: () => void;
+  apiKey?: string;
 }
 
 export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
@@ -22,6 +23,11 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const scriptProcessorRef = useRef<ScriptProcessorNode | null>(null);
   const webSocketRef = useRef<WebSocket | null>(null);
+
+  const activeApiKey =
+    toolHandlers.apiKey ||
+    process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
+    process.env.GEMINI_API_KEY;
 
   const connectVoiceAgent = useCallback(async () => {
     try {
@@ -58,24 +64,26 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
       };
 
       source.connect(processor);
-      // NOTE: Do NOT connect processor to audioContext.destination to avoid mic audio feedback echo!
 
       setIsConnected(true);
 
-      // Add activation message
+      const statusText = activeApiKey
+        ? "Gemini 2.5 Flash Voice Agent active (Native Audio Live with Gemini Key). Speak or type your command to direct the video stream."
+        : "Gemini 2.5 Flash Voice Agent active (Standby mode). Add GEMINI_API_KEY / NEXT_PUBLIC_GEMINI_API_KEY to enable full live streaming.";
+
       setMessages((prev) => [
         ...prev,
         {
           id: Math.random().toString(),
           sender: "gemini",
-          text: "Gemini 2.5 Flash Voice Agent active (Native Audio / Live). Speak or type your command to direct the video stream.",
+          text: statusText,
           timestamp: new Date(),
         },
       ]);
     } catch (err) {
       console.error("Failed to initialize Voice Agent media stream:", err);
     }
-  }, []);
+  }, [activeApiKey]);
 
   const disconnectVoiceAgent = useCallback(() => {
     if (webSocketRef.current) {
@@ -169,6 +177,7 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
     isSpeaking,
     messages,
     lastAction,
+    activeApiKey,
     connectVoiceAgent,
     disconnectVoiceAgent,
     sendVoiceCommand,

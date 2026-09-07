@@ -25,15 +25,25 @@ Connect, send a prompt, or speak to Gemini Voice Agent to produce and steer a co
 └──────────────────────┴─────────────────────────────────────┘
 ```
 
+## Environment Variables (ENV Setup)
+
+The application requires the following environment variables:
+
+| Variable | Description | Where to Get | Required |
+| :--- | :--- | :--- | :--- |
+| `REACTOR_API_KEY` | Reactor API Key for real-time video generation | [reactor.inc/account/api-keys](https://www.reactor.inc/account/api-keys) | **Yes** |
+| `GEMINI_API_KEY` | Google Gemini / Vertex AI API Key for Voice Agent | [Google AI Studio](https://aistudio.google.com/) | Optional / Recommended |
+| `NEXT_PUBLIC_GEMINI_API_KEY` | Client-accessible Gemini Key for Voice Agent | [Google AI Studio](https://aistudio.google.com/) | Optional / Recommended |
+
 ## Quick start
 
 > **Start a standalone project:** `npx create-reactor-app my-app --model=helios` scaffolds this example into a fresh app — no clone needed. The steps below are for running it in-place from a monorepo checkout.
 
-You'll need a Reactor API key — grab one at [reactor.inc/account/api-keys](https://www.reactor.inc/account/api-keys). It starts with `rk_`.
-
 ```bash
 cp .env.example .env
-# add your key: REACTOR_API_KEY=rk_...
+# Set your keys in .env:
+# REACTOR_API_KEY=rk_...
+# GEMINI_API_KEY=AIzaSy...
 
 pnpm install
 pnpm dev
@@ -55,6 +65,7 @@ This application includes both root and subdirectory `railway.json` configuratio
 3. **Set Environment Variables**:
    - Go to your service **Variables** tab on Railway.
    - Add `REACTOR_API_KEY` set to your key (`rk_...`).
+   - Add `GEMINI_API_KEY` / `NEXT_PUBLIC_GEMINI_API_KEY` set to your key (`AIzaSy...`).
 4. **Generate Public Domain**:
    - Go to **Settings** → **Networking** → Click **Generate Domain**.
    - Your Helios AI Voice Agent application is now live on Railway!
