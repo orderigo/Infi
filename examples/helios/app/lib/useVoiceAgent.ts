@@ -243,7 +243,7 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
           setup: {
             model: modelPath,
             generationConfig: {
-              responseModalities: ["AUDIO", "TEXT"],
+              responseModalities: ["AUDIO"],
               speechConfig: {
                 voiceConfig: {
                   prebuiltVoiceConfig: {
@@ -259,6 +259,8 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
                 },
               ],
             },
+            inputAudioTranscription: {},
+            outputAudioTranscription: {},
             tools: HELIOS_VOICE_TOOLS,
           },
         };
@@ -336,6 +338,21 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
 
           if (data.serverContent) {
             const modelTurn = data.serverContent.modelTurn;
+            const inputTranscript = data.serverContent.inputTranscription?.text;
+            const outputTranscript = data.serverContent.outputTranscription?.text;
+
+            if (inputTranscript || outputTranscript) {
+              setMessages((prev) => [
+                ...prev,
+                {
+                  id: Math.random().toString(),
+                  sender: inputTranscript ? "user" : "gemini",
+                  text: inputTranscript || outputTranscript,
+                  timestamp: new Date(),
+                },
+              ]);
+            }
+
             if (modelTurn && modelTurn.parts) {
               for (const part of modelTurn.parts) {
                 if (part.text) {
