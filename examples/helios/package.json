@@ -11,6 +11,8 @@
     "@reactor-models/helios": "^0.9.0",
     "@reactor-team/js-sdk": "^2.12.0",
     "@reactor-team/ui": "^1.4.1",
+    "@supabase/ssr": "^0.12.6",
+    "@supabase/supabase-js": "^2.115.0",
     "hls.js": "^1.6.0",
     "next": "^15.5.0",
     "react": "^19.1.0",
