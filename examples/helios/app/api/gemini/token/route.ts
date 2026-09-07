@@ -79,8 +79,7 @@ export async function GET() {
       let saJson;
       try {
         saJson = JSON.parse(serviceAccountEnv);
-      } catch (e) {
-        // Handle base64 encoded JSON if needed
+      } catch {
         const decoded = Buffer.from(serviceAccountEnv, "base64").toString("utf-8");
         saJson = JSON.parse(decoded);
       }
@@ -91,27 +90,25 @@ export async function GET() {
 
       if (!clientEmail || !privateKey) {
         return NextResponse.json(
-          { error: "Invalid GOOGLE_SERVICE_ACCOUNT_JSON format" },
-          { status: 500 }
+          { error: "Invalid GOOGLE_SERVICE_ACCOUNT_JSON format", fallback: true },
+          { status: 200 }
         );
       }
 
       accessToken = await getGoogleAccessToken(clientEmail, privateKey);
     } else if (apiKeyEnv) {
-      // Return API Key fallback if provided
       return NextResponse.json({
         apiKey: apiKeyEnv,
         projectId,
         location,
       });
     } else {
-      return NextResponse.json(
-        {
-          error:
-            "GOOGLE_SERVICE_ACCOUNT_JSON or GEMINI_API_KEY environment variable is not configured on the server.",
-        },
-        { status: 500 }
-      );
+      return NextResponse.json({
+        fallback: true,
+        message: "GEMINI_API_KEY or GOOGLE_SERVICE_ACCOUNT_JSON is not configured on server.",
+        projectId,
+        location,
+      });
     }
 
     return NextResponse.json({
@@ -122,6 +119,6 @@ export async function GET() {
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     console.error("Error in gemini token API:", message);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: message, fallback: true }, { status: 200 });
   }
 }
