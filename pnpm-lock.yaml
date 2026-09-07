@@ -75,6 +75,9 @@ importers:
       '@reactor-models/helios':
         specifier: ^0.9.0
         version: 0.9.15(react@19.2.3)(zustand@5.0.12(@types/react@19.2.15)(react@19.2.3))
+      '@reactor-models/lingbot-world-2':
+        specifier: ^0.2.5
+        version: 0.2.5(react@19.2.3)(zustand@5.0.12(@types/react@19.2.15)(react@19.2.3))
       '@reactor-team/js-sdk':
         specifier: ^2.12.0
         version: 2.12.4(react@19.2.3)(zustand@5.0.12(@types/react@19.2.15)(react@19.2.3))
@@ -87,18 +90,33 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.115.0
         version: 2.115.0
+      class-variance-authority:
+        specifier: ^0.7.1
+        version: 0.7.1
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
       hls.js:
         specifier: ^1.6.0
         version: 1.6.16
       next:
         specifier: ^15.5.0
         version: 15.5.9(@babel/core@7.29.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      radix-ui:
+        specifier: ^1.4.3
+        version: 1.6.7(@types/react-dom@19.2.7(@types/react@19.2.15))(@types/react@19.2.15)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react:
         specifier: ^19.1.0
         version: 19.2.3
       react-dom:
         specifier: ^19.1.0
         version: 19.2.3(react@19.2.3)
+      tailwind-merge:
+        specifier: ^3.4.0
+        version: 3.6.0
+      tw-animate-css:
+        specifier: ^1.4.0
+        version: 1.4.0
       zustand:
         specifier: ^5.0.6
         version: 5.0.12(@types/react@19.2.15)(react@19.2.3)
@@ -9544,7 +9562,7 @@ snapshots:
       esbuild: 0.27.7
       fdir: 6.5.0(picomatch@4.0.4)
       picomatch: 4.0.4
-      postcss: 8.5.15
+      postcss: 8.5.28
       rollup: 4.61.1
       tinyglobby: 0.2.17
     optionalDependencies:
