@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "../lib/supabaseClient";
+import { supabase, isSupabaseConfigured } from "../lib/supabaseClient";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -21,9 +21,17 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setErrorMsg(null);
     setInfoMsg(null);
+
+    if (!isSupabaseConfigured()) {
+      setErrorMsg(
+        "Supabase is not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your environment variables."
+      );
+      return;
+    }
+
+    setLoading(true);
 
     try {
       if (isSignUp) {
@@ -48,7 +56,17 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
       }
     } catch (err: unknown) {
       if (err instanceof Error) {
-        setErrorMsg(err.message);
+        if (
+          err.message.includes("Failed to fetch") ||
+          err.message.includes("fetch") ||
+          err.message.includes("NetworkError")
+        ) {
+          setErrorMsg(
+            "Failed to connect to the authentication service. Please check your internet connection or verify your Supabase URL."
+          );
+        } else {
+          setErrorMsg(err.message);
+        }
       } else {
         setErrorMsg("An unexpected error occurred during authentication.");
       }

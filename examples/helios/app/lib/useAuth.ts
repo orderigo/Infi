@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
-import { supabase } from "./supabaseClient";
+import { supabase, isSupabaseConfigured } from "./supabaseClient";
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
@@ -10,11 +10,22 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    if (!isSupabaseConfigured()) {
       setLoading(false);
-    });
+      return;
+    }
+
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.warn("Failed to get Supabase auth session:", err);
+        setLoading(false);
+      });
 
     const {
       data: { subscription },
@@ -30,7 +41,12 @@ export function useAuth() {
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    if (!isSupabaseConfigured()) return;
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.warn("Error signing out:", err);
+    }
   };
 
   return {
