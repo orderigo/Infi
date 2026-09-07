@@ -27,13 +27,22 @@ Connect, send a prompt, or speak to Gemini Voice Agent to produce and steer a co
 
 ## Environment Variables (ENV Setup)
 
-The application requires the following environment variables:
+The application supports authenticating with Google Vertex AI Gemini 2.5 Flash using either **API Keys** or **Google Cloud Service Account JSON**:
 
-| Variable | Description | Where to Get | Required |
+| Variable | Description | Where to Get / Format | Required |
 | :--- | :--- | :--- | :--- |
 | `REACTOR_API_KEY` | Reactor API Key for real-time video generation | [reactor.inc/account/api-keys](https://www.reactor.inc/account/api-keys) | **Yes** |
-| `GEMINI_API_KEY` | Google Gemini / Vertex AI API Key for Voice Agent | [Google AI Studio](https://aistudio.google.com/) | Optional / Recommended |
-| `NEXT_PUBLIC_GEMINI_API_KEY` | Client-accessible Gemini Key for Voice Agent | [Google AI Studio](https://aistudio.google.com/) | Optional / Recommended |
+| `GEMINI_API_KEY` | Google Gemini API Key | [Google AI Studio](https://aistudio.google.com/) | Option A |
+| `NEXT_PUBLIC_GEMINI_API_KEY` | Client-accessible Gemini Key | [Google AI Studio](https://aistudio.google.com/) | Option A |
+| `GOOGLE_APPLICATION_CREDENTIALS` | Path to Google Service Account JSON Key file | Google Cloud Console → IAM & Admin → Service Accounts | Option B |
+| `GOOGLE_SERVICE_ACCOUNT_JSON` | Raw or Base64 Google Service Account JSON string | Google Cloud Console Service Account JSON Key content | Option B (Cloud/Railway) |
+
+### Using Google Service Account JSON:
+1. Go to **Google Cloud Console** → **IAM & Admin** → **Service Accounts**.
+2. Create a Service Account with **Vertex AI User** role.
+3. Keys → **Add Key** → **Create new key** (JSON format).
+4. Save the file locally as `google-service-account.json` and set `GOOGLE_APPLICATION_CREDENTIALS=./google-service-account.json` in `.env`.
+5. On Railway/Render, paste the JSON content directly into `GOOGLE_SERVICE_ACCOUNT_JSON`.
 
 ## Quick start
 
@@ -43,7 +52,7 @@ The application requires the following environment variables:
 cp .env.example .env
 # Set your keys in .env:
 # REACTOR_API_KEY=rk_...
-# GEMINI_API_KEY=AIzaSy...
+# GEMINI_API_KEY=AIzaSy... (OR GOOGLE_APPLICATION_CREDENTIALS=./google-service-account.json)
 
 pnpm install
 pnpm dev
@@ -65,7 +74,7 @@ This application includes both root and subdirectory `railway.json` configuratio
 3. **Set Environment Variables**:
    - Go to your service **Variables** tab on Railway.
    - Add `REACTOR_API_KEY` set to your key (`rk_...`).
-   - Add `GEMINI_API_KEY` / `NEXT_PUBLIC_GEMINI_API_KEY` set to your key (`AIzaSy...`).
+   - Add `GEMINI_API_KEY` or `GOOGLE_SERVICE_ACCOUNT_JSON` (Google Service Account JSON string).
 4. **Generate Public Domain**:
    - Go to **Settings** → **Networking** → Click **Generate Domain**.
    - Your Helios AI Voice Agent application is now live on Railway!
@@ -80,4 +89,4 @@ This application includes both root and subdirectory `railway.json` configuratio
 
 ## Tech stack
 
-Next.js 15 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · Gemini 2.5 Flash Voice Agent · [`@reactor-models/helios`](https://www.npmjs.com/package/@reactor-models/helios) · [`@reactor-team/js-sdk`](https://www.npmjs.com/package/@reactor-team/js-sdk)
+Next.js 15 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · Gemini 2.5 Flash Voice Agent · Google Vertex AI · [`@reactor-models/helios`](https://www.npmjs.com/package/@reactor-models/helios) · [`@reactor-team/js-sdk`](https://www.npmjs.com/package/@reactor-team/js-sdk)
