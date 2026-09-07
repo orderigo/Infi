@@ -223,7 +223,7 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
       let wsUrl = "";
       if (accessToken) {
         const host = `${location}-aiplatform.googleapis.com`;
-        wsUrl = `wss://${host}/ws/google.cloud.aiplatform.v1beta1.LlmBidiService/BidiGenerateContent?access_token=${encodeURIComponent(accessToken)}`;
+        wsUrl = `wss://${host}/ws/google.cloud.aiplatform.v1.LlmBidiService/BidiGenerateContent?access_token=${encodeURIComponent(accessToken)}`;
       } else if (apiKey) {
         wsUrl = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${encodeURIComponent(apiKey)}`;
       }
