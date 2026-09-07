@@ -86,12 +86,15 @@ export async function GET() {
 
       projectId = saJson.project_id || projectId;
       const clientEmail = saJson.client_email;
-      const privateKey = saJson.private_key;
+      const privateKey = saJson.private_key?.replace(/\\n/g, "\n");
 
-      if (!clientEmail || !privateKey) {
+      if (!clientEmail || !privateKey || !projectId) {
         return NextResponse.json(
-          { error: "Invalid GOOGLE_SERVICE_ACCOUNT_JSON format", fallback: true },
-          { status: 200 }
+          {
+            error:
+              "Invalid GOOGLE_SERVICE_ACCOUNT_JSON: project_id, client_email, and private_key are required",
+          },
+          { status: 500 }
         );
       }
 
@@ -103,12 +106,15 @@ export async function GET() {
         location,
       });
     } else {
-      return NextResponse.json({
-        fallback: true,
-        message: "GEMINI_API_KEY or GOOGLE_SERVICE_ACCOUNT_JSON is not configured on server.",
-        projectId,
-        location,
-      });
+      return NextResponse.json(
+        {
+          error:
+            "GEMINI voice credentials are not configured. Set GOOGLE_SERVICE_ACCOUNT_JSON in Vercel Environment Variables.",
+          projectId,
+          location,
+        },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({
@@ -119,6 +125,6 @@ export async function GET() {
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     console.error("Error in gemini token API:", message);
-    return NextResponse.json({ error: message, fallback: true }, { status: 200 });
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
