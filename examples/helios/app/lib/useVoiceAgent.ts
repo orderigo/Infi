@@ -187,7 +187,7 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
           {
             id: Math.random().toString(),
             sender: "gemini",
-            text: "Voice Agent connected in assistant mode. Add GOOGLE_SERVICE_ACCOUNT_JSON to the server environment to enable live microphone audio.",
+            text: "Voice Agent connected in assistant mode. Add GCP_SERVICE_ACCOUNT_KEY to the server environment to enable live microphone audio.",
             timestamp: new Date(),
           },
         ]);
@@ -223,7 +223,7 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
       let wsUrl = "";
       if (accessToken) {
         const host = `${location}-aiplatform.googleapis.com`;
-        wsUrl = `wss://${host}/ws/google.cloud.aiplatform.v1.LlmBidiService/BidiGenerateContent?access_token=${encodeURIComponent(accessToken)}`;
+        wsUrl = `wss://${host}/ws/google.cloud.aiplatform.v1beta1.LlmBidiService/BidiGenerateContent?project=${encodeURIComponent(projectId)}&location=${encodeURIComponent(location)}&access_token=${encodeURIComponent(accessToken)}`;
       } else if (apiKey) {
         wsUrl = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${encodeURIComponent(apiKey)}`;
       }
@@ -236,8 +236,8 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
         setIsConnected(true);
 
         const modelPath = accessToken
-          ? `projects/${projectId}/locations/${location}/publishers/google/models/gemini-live-2.5-flash-native-audio`
-          : "models/gemini-live-2.5-flash-native-audio";
+          ? `projects/${projectId}/locations/${location}/publishers/google/models/gemini-2.0-flash`
+          : "models/gemini-2.0-flash";
 
         const setupMessage = {
           setup: {
@@ -303,7 +303,7 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
                 realtimeInput: {
                   mediaChunks: [
                     {
-                      mimeType: "audio/pcm;rate=16000",
+                      mimeType: "audio/pcm",
                       data: base64Audio,
                     },
                   ],

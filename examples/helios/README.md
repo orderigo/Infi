@@ -1,6 +1,6 @@
 # Helios Interactive
 
-A Next.js + TypeScript reference frontend for [**Helios**](https://reactor.inc) — Reactor's real-time, prompt-driven video generation model integrated with Google Vertex AI Gemini 2.5 Flash Voice Agent.
+A Next.js + TypeScript reference frontend for [**Helios**](https://reactor.inc) — Reactor's real-time, prompt-driven video generation model integrated with Google Vertex AI Gemini 2.0 Flash Voice Agent.
 
 Connect, send a prompt, or speak to Gemini Voice Agent to produce and steer a continuous real-time video stream. Start from a curated text prompt, an example image, or your own image. Hot-swap prompts mid-flight via voice or UI. The whole app is built on the typed [`@reactor-models/helios`](https://www.npmjs.com/package/@reactor-models/helios) SDK.
 
@@ -9,7 +9,7 @@ Connect, send a prompt, or speak to Gemini Voice Agent to produce and steer a co
 │  Status   ▸ ready    │                                     │
 │                      │                                     │
 │  Voice Agent Panel   │                                     │
-│  [Gemini 2.5 Flash]  │         live video output           │
+│  [Gemini 2.0 Flash]  │         live video output           │
 │  (waveform / chat)   │         (HeliosMainVideoView)       │
 │                      │                                     │
 │  Try a prompt        │                                     │
@@ -34,6 +34,7 @@ You'll need a Reactor API key — grab one at [reactor.inc/account/api-keys](htt
 ```bash
 cp .env.example .env
 # add your key: REACTOR_API_KEY=rk_...
+# add GCP_SERVICE_ACCOUNT_KEY='{"type":"service_account",...}'
 
 pnpm install
 pnpm dev
@@ -41,27 +42,25 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000), click **Connect**, and pick a starting point or activate the **Voice Agent**.
 
-## Deploy to Railway
+## Deploy to Railway or Vercel
 
-This application includes both root and subdirectory `railway.json` configurations for seamless 1-click publishing on [Railway](https://railway.app).
+This application includes both root and subdirectory `railway.json` configurations for seamless 1-click publishing on [Railway](https://railway.app) and is fully Vercel compatible.
 
 ### Step-by-Step Deployment:
 
 1. **Push to GitHub**: Make sure your repository is pushed to GitHub.
-2. **Deploy on Railway**:
-   - Log in to [Railway Dashboard](https://railway.app/dashboard).
+2. **Deploy on Railway / Vercel**:
+   - Log in to [Railway Dashboard](https://railway.app/dashboard) or Vercel.
    - Click **New Project** → **Deploy from GitHub repo**.
-   - Select your repository. Railway will detect the root `railway.json` and execute `pnpm --filter helios build` and `pnpm --filter helios start`.
 3. **Set Environment Variables**:
-   - Go to your service **Variables** tab on Railway.
    - Add `REACTOR_API_KEY` set to your key (`rk_...`).
+   - Add `GCP_SERVICE_ACCOUNT_KEY` set to your Google Cloud service account JSON string.
 4. **Generate Public Domain**:
-   - Go to **Settings** → **Networking** → Click **Generate Domain**.
-   - Your Helios AI Voice Agent application is now live on Railway!
+   - Your Helios AI Voice Agent application is now live!
 
 ## What you can do with it
 
-- **Voice Agent Gemini 2.5 Flash Control.** Speak or type natural language instructions to steer the Helios video model in real time (e.g., "Make it rain in cyberpunk city", "Pause the video", "Resume generation").
+- **Voice Agent Gemini 2.0 Flash Control.** Speak or type natural language instructions to steer the Helios video model in real time (e.g., "Make it rain in cyberpunk city", "Pause the video", "Resume generation").
 - **Start a scene from a text prompt.** Four curated prompt presets in the sidebar, plus a free-text input.
 - **Start a scene from an image.** Example images pair with hand-tuned prompts, or upload your own.
 - **Evolve the scene mid-stream.** Hot-swap prompts without stopping the video generation stream.
@@ -69,4 +68,4 @@ This application includes both root and subdirectory `railway.json` configuratio
 
 ## Tech stack
 
-Next.js 15 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · Gemini 2.5 Flash Voice Agent · [`@reactor-models/helios`](https://www.npmjs.com/package/@reactor-models/helios) · [`@reactor-team/js-sdk`](https://www.npmjs.com/package/@reactor-team/js-sdk)
+Next.js 15 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · Gemini 2.0 Flash Voice Agent · [`@reactor-models/helios`](https://www.npmjs.com/package/@reactor-models/helios) · [`@reactor-team/js-sdk`](https://www.npmjs.com/package/@reactor-team/js-sdk)
