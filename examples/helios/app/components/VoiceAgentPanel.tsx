@@ -73,18 +73,20 @@ export function VoiceAgentPanel({
                   isSpeaking
                     ? "text-cyan-400"
                     : isListening
-                    ? "text-emerald-400"
-                    : "text-zinc-400"
+                      ? "text-emerald-400"
+                      : "text-zinc-400"
                 }
               >
                 {isSpeaking
                   ? "SPEAKING AUDIO"
                   : isListening
-                  ? "LISTENING..."
-                  : "STANDBY"}
+                    ? "LISTENING..."
+                    : "STANDBY"}
               </strong>
             </span>
-            <span className="hidden sm:inline">MODEL: GEMINI-LIVE-2.5-FLASH-NATIVE-AUDIO</span>
+            <span className="hidden sm:inline">
+              MODEL: GEMINI-LIVE-2.5-FLASH-NATIVE-AUDIO
+            </span>
           </div>
 
           {/* High-tech Audio Frequency Bars Animation */}
@@ -96,15 +98,15 @@ export function VoiceAgentPanel({
                   isSpeaking
                     ? "bg-cyan-400 animate-pulse"
                     : isListening
-                    ? "bg-emerald-400"
-                    : "bg-zinc-700"
+                      ? "bg-emerald-400"
+                      : "bg-zinc-700"
                 }`}
                 style={{
                   height: isSpeaking
                     ? `${Math.max(20, Math.sin(i + Date.now()) * 100)}%`
                     : isListening
-                    ? `${Math.max(15, (i % 5) * 20)}%`
-                    : "20%",
+                      ? `${Math.max(15, (i % 5) * 20)}%`
+                      : "20%",
                 }}
               />
             ))}

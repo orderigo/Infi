@@ -15,7 +15,8 @@ interface ServiceAccountCredentials {
 export async function GET() {
   try {
     const serviceAccountEnv =
-      process.env.GCP_SERVICE_ACCOUNT_KEY || process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+      process.env.GCP_SERVICE_ACCOUNT_KEY ||
+      process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
     const apiKeyEnv = process.env.GEMINI_API_KEY;
 
     let projectId = process.env.GOOGLE_CLOUD_PROJECT || "";
@@ -26,7 +27,9 @@ export async function GET() {
       try {
         credentials = JSON.parse(serviceAccountEnv);
       } catch {
-        const decoded = Buffer.from(serviceAccountEnv, "base64").toString("utf-8");
+        const decoded = Buffer.from(serviceAccountEnv, "base64").toString(
+          "utf-8",
+        );
         credentials = JSON.parse(decoded);
       }
 
@@ -42,7 +45,7 @@ export async function GET() {
             error:
               "Invalid service account key: project_id, client_email, and private_key are required",
           },
-          { status: 500 }
+          { status: 500 },
         );
       }
 
@@ -58,7 +61,7 @@ export async function GET() {
       if (!accessToken) {
         return NextResponse.json(
           { error: "Failed to retrieve access token from Google Auth" },
-          { status: 500 }
+          { status: 500 },
         );
       }
 
@@ -84,7 +87,7 @@ export async function GET() {
         projectId,
         location,
       },
-      { status: 500 }
+      { status: 500 },
     );
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);

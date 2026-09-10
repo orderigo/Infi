@@ -20,7 +20,10 @@ export function Header({
       <div className="flex flex-wrap items-center gap-3 sm:gap-4">
         <div className="flex items-baseline gap-2">
           <h1 className="font-mono text-xs font-bold tracking-tight text-cyan-400 sm:text-sm">
-            REACTOR AI <span className="text-[10px] font-normal text-zinc-400 sm:text-xs">LABS</span>
+            REACTOR AI{" "}
+            <span className="text-[10px] font-normal text-zinc-400 sm:text-xs">
+              LABS
+            </span>
           </h1>
         </div>
 
@@ -35,7 +38,9 @@ export function Header({
             }`}
           >
             <span>Helios AI</span>
-            <span className="hidden text-[10px] font-normal opacity-70 sm:inline">× Gemini</span>
+            <span className="hidden text-[10px] font-normal opacity-70 sm:inline">
+              × Gemini
+            </span>
           </button>
           <button
             onClick={() => onTabChange?.("explore")}

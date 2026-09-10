@@ -38,7 +38,11 @@ function base64ToFloat32PCM(base64: string): Float32Array {
   for (let i = 0; i < len; i++) {
     bytes[i] = binaryString.charCodeAt(i);
   }
-  const dataView = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const dataView = new DataView(
+    bytes.buffer,
+    bytes.byteOffset,
+    bytes.byteLength,
+  );
   const numSamples = Math.floor(len / 2);
   const float32Array = new Float32Array(numSamples);
   for (let i = 0; i < numSamples; i++) {
@@ -64,8 +68,11 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
   const playIncomingPcmAudio = useCallback((base64Pcm: string) => {
     try {
       if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext ||
-          (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+        audioContextRef.current = new (
+          window.AudioContext ||
+          (window as unknown as { webkitAudioContext: typeof AudioContext })
+            .webkitAudioContext
+        )();
       }
 
       const audioCtx = audioContextRef.current;
@@ -98,8 +105,17 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
   }, []);
 
   const handleToolCall = useCallback(
-    (functionCalls: Array<{ name: string; args: Record<string, unknown>; id: string }>) => {
-      const responses: Array<{ response: { output: Record<string, unknown> }; id: string }> = [];
+    (
+      functionCalls: Array<{
+        name: string;
+        args: Record<string, unknown>;
+        id: string;
+      }>,
+    ) => {
+      const responses: Array<{
+        response: { output: Record<string, unknown> };
+        id: string;
+      }> = [];
 
       for (const call of functionCalls) {
         const { name, args, id } = call;
@@ -146,7 +162,10 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
         });
       }
 
-      if (webSocketRef.current && webSocketRef.current.readyState === WebSocket.OPEN) {
+      if (
+        webSocketRef.current &&
+        webSocketRef.current.readyState === WebSocket.OPEN
+      ) {
         const toolResponsePayload = {
           toolResponse: {
             functionResponses: responses,
@@ -155,7 +174,7 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
         webSocketRef.current.send(JSON.stringify(toolResponsePayload));
       }
     },
-    [toolHandlers]
+    [toolHandlers],
   );
 
   const connectVoiceAgent = useCallback(async () => {
@@ -168,17 +187,18 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
       if (!tokenRes.ok) {
         throw new Error(
           (tokenData as { error?: string }).error ||
-            `Gemini token endpoint failed (${tokenRes.status})`
+            `Gemini token endpoint failed (${tokenRes.status})`,
         );
       }
 
-      const { accessToken, apiKey, projectId, location, fallback } = tokenData as {
-        accessToken?: string;
-        apiKey?: string;
-        projectId: string;
-        location: string;
-        fallback?: boolean;
-      };
+      const { accessToken, apiKey, projectId, location, fallback } =
+        tokenData as {
+          accessToken?: string;
+          apiKey?: string;
+          projectId: string;
+          location: string;
+          fallback?: boolean;
+        };
 
       if (fallback || (!accessToken && !apiKey)) {
         setIsConnected(true);
@@ -195,8 +215,11 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
       }
 
       if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext ||
-          (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)({
+        audioContextRef.current = new (
+          window.AudioContext ||
+          (window as unknown as { webkitAudioContext: typeof AudioContext })
+            .webkitAudioContext
+        )({
           sampleRate: 16000,
         });
       }
@@ -278,8 +301,13 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
         ]);
 
         if (stream && audioContextRef.current) {
-          const source = audioContextRef.current.createMediaStreamSource(stream);
-          const processor = audioContextRef.current.createScriptProcessor(2048, 1, 1);
+          const source =
+            audioContextRef.current.createMediaStreamSource(stream);
+          const processor = audioContextRef.current.createScriptProcessor(
+            2048,
+            1,
+            1,
+          );
           scriptProcessorRef.current = processor;
 
           processor.onaudioprocess = (e) => {
@@ -452,7 +480,10 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
         },
       ]);
 
-      if (webSocketRef.current && webSocketRef.current.readyState === WebSocket.OPEN) {
+      if (
+        webSocketRef.current &&
+        webSocketRef.current.readyState === WebSocket.OPEN
+      ) {
         const textPayload = {
           clientContent: {
             turns: [
@@ -483,7 +514,11 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
             toolHandlers.onReset?.();
             setLastAction("reset_video()");
             responseText = "Resetting session state.";
-          } else if (lower.includes("snap") || lower.includes("clip") || lower.includes("capture")) {
+          } else if (
+            lower.includes("snap") ||
+            lower.includes("clip") ||
+            lower.includes("capture")
+          ) {
             toolHandlers.onSnapClip?.();
             setLastAction("snap_clip()");
             responseText = "Capturing video clip.";
@@ -507,7 +542,7 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
         }, 500);
       }
     },
-    [toolHandlers]
+    [toolHandlers],
   );
 
   useEffect(() => {

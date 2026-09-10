@@ -61,7 +61,8 @@ function HeliosMainSection({ onOpenAuth }: { onOpenAuth: () => void }) {
         {!user && (
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-xl bg-black/70 p-6 text-center backdrop-blur-md">
             <p className="mb-4 font-mono text-sm text-cyan-300">
-              Authentication Required to Generate Real-Time Video & Use Voice Agent
+              Authentication Required to Generate Real-Time Video & Use Voice
+              Agent
             </p>
             <button
               onClick={onOpenAuth}
