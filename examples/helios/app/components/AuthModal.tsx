@@ -26,7 +26,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
 
     if (!isSupabaseConfigured()) {
       setErrorMsg(
-        "Supabase is not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your environment variables."
+        "Supabase is not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your environment variables.",
       );
       return;
     }
@@ -41,7 +41,9 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
         });
         if (error) throw error;
         if (data.user && !data.session) {
-          setInfoMsg("Sign up successful! Please check your email to confirm your account.");
+          setInfoMsg(
+            "Sign up successful! Please check your email to confirm your account.",
+          );
         } else {
           setInfoMsg("Account created successfully!");
           if (onSuccess) onSuccess();
@@ -62,7 +64,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
           err.message.includes("NetworkError")
         ) {
           setErrorMsg(
-            "Failed to connect to the authentication service. Please check your internet connection or verify your Supabase URL."
+            "Failed to connect to the authentication service. Please check your internet connection or verify your Supabase URL.",
           );
         } else {
           setErrorMsg(err.message);

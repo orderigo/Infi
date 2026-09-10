@@ -130,7 +130,8 @@ function MainContent({ onOpenAuth }: { onOpenAuth?: () => void }) {
             {!user && (
               <div className="absolute inset-0 z-20 flex flex-col items-center justify-center rounded-xl bg-black/75 p-6 text-center backdrop-blur-md">
                 <p className="mb-4 font-mono text-sm text-cyan-300">
-                  Authentication Required to Connect to Lingbot World 2 Real-Time Stream
+                  Authentication Required to Connect to Lingbot World 2
+                  Real-Time Stream
                 </p>
                 <button
                   onClick={onOpenAuth}
