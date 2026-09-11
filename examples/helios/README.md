@@ -1,71 +1,80 @@
 # Helios Interactive
 
-A Next.js + TypeScript reference frontend for [**Helios**](https://reactor.inc) — Reactor's real-time, prompt-driven video generation model integrated with Google Vertex AI Gemini 2.0 Flash Voice Agent.
+A Next.js + TypeScript reference frontend for [**Helios**](https://reactor.inc). It combines Reactor’s real-time, prompt-driven video generation with a **Gemini Live Voice Agent** running through a server-side WebSocket proxy.
 
-Connect, send a prompt, or speak to Gemini Voice Agent to produce and steer a continuous real-time video stream. Start from a curated text prompt, an example image, or your own image. Hot-swap prompts mid-flight via voice or UI. The whole app is built on the typed [`@reactor-models/helios`](https://www.npmjs.com/package/@reactor-models/helios) SDK.
-
-```
-┌──────────────────────┬─────────────────────────────────────┐
-│  Status   ▸ ready    │                                     │
-│                      │                                     │
-│  Voice Agent Panel   │                                     │
-│  [Gemini 2.0 Flash]  │         live video output           │
-│  (waveform / chat)   │         (HeliosMainVideoView)       │
-│                      │                                     │
-│  Try a prompt        │                                     │
-│  ┌────────┬────────┐ │                                     │
-│  │ Leo    │ Rain   │ │                                     │
-│  └────────┴────────┘ │                                     │
-│  ┌────────┬────────┐ │                                     │
-│  │ Flower │ Max    │ │                                     │
-│  └────────┴────────┘ │                                     │
-│                      │                                     │
-│  Or start from image │                                     │
-│  [Upload your own]   │                                     │
-└──────────────────────┴─────────────────────────────────────┘
-```
+The browser captures microphone audio and sends it to the Helios server. The server authenticates the signed-in user, obtains a Google Cloud access token from `GOOGLE_SERVICE_ACCOUNT_JSON`, and proxies the Live API session to Vertex AI. **The Google credential and access token never reach the browser.**
 
 ## Quick start
 
-> **Start a standalone project:** `npx create-reactor-app my-app --model=helios` scaffolds this example into a fresh app — no clone needed. The steps below are for running it in-place from a monorepo checkout.
+> **Start a standalone project:** `npx create-reactor-app my-app --model=helios` scaffolds this example into a fresh app. The steps below run this example from a monorepo checkout.
 
-You'll need a Reactor API key — grab one at [reactor.inc/account/api-keys](https://www.reactor.inc/account/api-keys). It starts with `rk_`.
+You need a Reactor API key, a Supabase project for sign-in, and a Google Cloud service account for Gemini Live.
 
 ```bash
+cd examples/helios
 cp .env.example .env
-# add your key: REACTOR_API_KEY=rk_...
-# add GCP_SERVICE_ACCOUNT_KEY='{"type":"service_account",...}'
+# Add REACTOR_API_KEY, Supabase values, and GOOGLE_SERVICE_ACCOUNT_JSON.
 
 pnpm install
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000), click **Connect**, and pick a starting point or activate the **Voice Agent**.
+Open [http://localhost:3000](http://localhost:3000), sign in, then select **Connect Voice**. Wait for the “Gemini Live session ready” message before speaking or sending a text command.
 
-## Deploy to Railway or Vercel
+## Voice Agent configuration
 
-This application includes both root and subdirectory `railway.json` configurations for seamless 1-click publishing on [Railway](https://railway.app) and is fully Vercel compatible.
+### Required server environment variables
 
-### Step-by-Step Deployment:
+| Variable                                              | Purpose                                                                                                                                                     |
+| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GOOGLE_SERVICE_ACCOUNT_JSON`                         | The Google service-account JSON as a single-line JSON string or a base64-encoded JSON string. This is the only credential variable used by the Voice Agent. |
+| `SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_URL`           | Supabase project URL used to verify the browser’s logged-in session.                                                                                        |
+| `SUPABASE_ANON_KEY` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key used to verify the browser’s logged-in session.                                                                                           |
+| `REACTOR_API_KEY`                                     | Reactor API key used to create Helios sessions.                                                                                                             |
 
-1. **Push to GitHub**: Make sure your repository is pushed to GitHub.
-2. **Deploy on Railway / Vercel**:
-   - Log in to [Railway Dashboard](https://railway.app/dashboard) or Vercel.
-   - Click **New Project** → **Deploy from GitHub repo**.
-3. **Set Environment Variables**:
-   - Add `REACTOR_API_KEY` set to your key (`rk_...`).
-   - Add `GCP_SERVICE_ACCOUNT_KEY` set to your Google Cloud service account JSON string.
-4. **Generate Public Domain**:
-   - Your Helios AI Voice Agent application is now live!
+### Optional server environment variables
 
-## What you can do with it
+| Variable                | Default                              | Purpose                                                                             |
+| ----------------------- | ------------------------------------ | ----------------------------------------------------------------------------------- |
+| `GOOGLE_CLOUD_LOCATION` | `us-central1`                        | Vertex AI location. Set `global` only when it is available in the selected project. |
+| `GOOGLE_CLOUD_PROJECT`  | Service-account `project_id`         | Explicit Google Cloud project override.                                             |
+| `GEMINI_LIVE_MODEL`     | `gemini-live-2.5-flash-native-audio` | Supported Gemini Live model to use.                                                 |
 
-- **Voice Agent Gemini 2.0 Flash Control.** Speak or type natural language instructions to steer the Helios video model in real time (e.g., "Make it rain in cyberpunk city", "Pause the video", "Resume generation").
-- **Start a scene from a text prompt.** Four curated prompt presets in the sidebar, plus a free-text input.
-- **Start a scene from an image.** Example images pair with hand-tuned prompts, or upload your own.
-- **Evolve the scene mid-stream.** Hot-swap prompts without stopping the video generation stream.
-- **Snap a clip.** Grab the last 10 seconds of the live stream and download MP4s.
+Before starting the application, enable the Vertex AI API in the Google Cloud project and grant the service account a role that can invoke Vertex AI generative models, such as **Vertex AI User** (`roles/aiplatform.user`). Billing must also be enabled for the project.
+
+> Do not expose `GOOGLE_SERVICE_ACCOUNT_JSON` in a `NEXT_PUBLIC_*` variable, client-side source, or browser request. The custom server reads it only when establishing the upstream Vertex AI WebSocket.
+
+## Deployment
+
+The Voice Agent needs a deployment that supports persistent WebSocket connections and custom Node servers. Railway is configured for this repository: it runs `pnpm --filter helios start`, which starts `examples/helios/server.mjs` and the Next.js application together.
+
+1. Deploy the repository to Railway.
+2. Add the required server environment variables above, including `GOOGLE_SERVICE_ACCOUNT_JSON`.
+3. Generate a public domain, open the app through HTTPS, sign in, and allow microphone access.
+
+Deployments that only run Next.js route handlers without a persistent WebSocket server need a separate authenticated WebSocket proxy; the built-in Voice Agent proxy cannot run there.
+
+## What you can do
+
+- **Voice or text-control the video stream.** Speak or type natural-language instructions such as “Make it rain in a cyberpunk city,” “Pause the video,” or “Resume generation.”
+- **Start a scene from a text prompt.** Select a curated preset or use free text.
+- **Start a scene from an image.** Use an example image or upload your own.
+- **Evolve a scene mid-stream.** Hot-swap prompts without stopping video generation.
+- **Snap a clip.** Download a recent section of the live stream.
+
+## Architecture
+
+```text
+Browser microphone / text
+        │  authenticated WebSocket
+        ▼
+Helios custom Node server ── service-account access token ──► Vertex AI Gemini Live
+        │
+        └── Supabase session verification
+```
+
+Gemini Live API expects raw 16-bit PCM audio at 16 kHz as input and returns 24 kHz PCM audio. The client keeps its capture graph connected through a muted node so browser audio processing continues reliably, and it waits for Google’s setup confirmation before sending media or commands.
 
 ## Tech stack
 
-Next.js 15 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · Gemini 2.0 Flash Voice Agent · [`@reactor-models/helios`](https://www.npmjs.com/package/@reactor-models/helios) · [`@reactor-team/js-sdk`](https://www.npmjs.com/package/@reactor-team/js-sdk)
+Next.js 15 · React 19 · TypeScript · Tailwind CSS v4 · Gemini Live 2.5 Flash Native Audio · Google Auth Library · `ws` · Supabase · [`@reactor-models/helios`](https://www.npmjs.com/package/@reactor-models/helios) · [`@reactor-team/js-sdk`](https://www.npmjs.com/package/@reactor-team/js-sdk)

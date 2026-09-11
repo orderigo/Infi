@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { HELIOS_VOICE_TOOLS, type VoiceMessage } from "./voiceAgent";
+import { isSupabaseConfigured, supabase } from "./supabaseClient";
 
 export interface ToolCallHandlerProps {
   onUpdatePrompt?: (prompt: string) => void;
@@ -52,6 +53,11 @@ function base64ToFloat32PCM(base64: string): Float32Array {
   return float32Array;
 }
 
+function getVoiceAgentWebSocketUrl(): string {
+  const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+  return `${protocol}//${window.location.host}/api/gemini/live`;
+}
+
 export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
   const [isConnected, setIsConnected] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -62,7 +68,9 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
   const audioContextRef = useRef<AudioContext | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const scriptProcessorRef = useRef<ScriptProcessorNode | null>(null);
+  const captureGainRef = useRef<GainNode | null>(null);
   const webSocketRef = useRef<WebSocket | null>(null);
+  const sessionReadyRef = useRef(false);
   const nextAudioStartTimeRef = useRef<number>(0);
 
   const playIncomingPcmAudio = useCallback((base64Pcm: string) => {
@@ -181,37 +189,15 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
     try {
       if (webSocketRef.current || isConnected) return;
 
-      const tokenRes = await fetch("/api/gemini/token", { cache: "no-store" });
-      const tokenData = await tokenRes.json().catch(() => ({ fallback: true }));
-
-      if (!tokenRes.ok) {
-        throw new Error(
-          (tokenData as { error?: string }).error ||
-            `Gemini token endpoint failed (${tokenRes.status})`,
-        );
+      if (!isSupabaseConfigured()) {
+        throw new Error("Voice Agent authentication is not configured");
       }
 
-      const { accessToken, apiKey, projectId, location, fallback } =
-        tokenData as {
-          accessToken?: string;
-          apiKey?: string;
-          projectId: string;
-          location: string;
-          fallback?: boolean;
-        };
-
-      if (fallback || (!accessToken && !apiKey)) {
-        setIsConnected(true);
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: Math.random().toString(),
-            sender: "gemini",
-            text: "Voice Agent connected in assistant mode. Add GCP_SERVICE_ACCOUNT_KEY to the server environment to enable live microphone audio.",
-            timestamp: new Date(),
-          },
-        ]);
-        return;
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error("Please sign in before connecting the Voice Agent");
       }
 
       if (!audioContextRef.current) {
@@ -243,28 +229,23 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
         console.warn("Microphone access not granted or unavailable:", e);
       }
 
-      let wsUrl = "";
-      if (accessToken) {
-        const host = `${location}-aiplatform.googleapis.com`;
-        wsUrl = `wss://${host}/ws/google.cloud.aiplatform.v1beta1.LlmBidiService/BidiGenerateContent?project=${encodeURIComponent(projectId)}&location=${encodeURIComponent(location)}&access_token=${encodeURIComponent(accessToken)}`;
-      } else if (apiKey) {
-        wsUrl = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${encodeURIComponent(apiKey)}`;
-      }
-
-      const ws = new WebSocket(wsUrl);
+      // The service-account credential stays on the server. The short-lived
+      // Supabase session token is only used to authorize this browser socket.
+      const ws = new WebSocket(getVoiceAgentWebSocketUrl(), [
+        `auth.${session.access_token}`,
+      ]);
       webSocketRef.current = ws;
+      sessionReadyRef.current = false;
       let setupComplete = false;
 
       ws.onopen = () => {
         setIsConnected(true);
 
-        const modelPath = accessToken
-          ? `projects/${projectId}/locations/${location}/publishers/google/models/gemini-2.0-flash`
-          : "models/gemini-2.0-flash";
-
         const setupMessage = {
           setup: {
-            model: modelPath,
+            // The server replaces this placeholder with the configured,
+            // allowed Vertex resource name before forwarding it to Google.
+            model: "server-configured",
             generationConfig: {
               responseModalities: ["AUDIO"],
               speechConfig: {
@@ -310,6 +291,13 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
           );
           scriptProcessorRef.current = processor;
 
+          // ScriptProcessor nodes are not consistently scheduled by browsers
+          // unless they are connected to the destination. Keep the capture
+          // graph alive without emitting the microphone to the speakers.
+          const captureGain = audioContextRef.current.createGain();
+          captureGain.gain.value = 0;
+          captureGainRef.current = captureGain;
+
           processor.onaudioprocess = (e) => {
             const inputBuffer = e.inputBuffer.getChannelData(0);
             let sum = 0;
@@ -331,7 +319,7 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
                 realtimeInput: {
                   mediaChunks: [
                     {
-                      mimeType: "audio/pcm",
+                      mimeType: "audio/pcm;rate=16000",
                       data: base64Audio,
                     },
                   ],
@@ -342,6 +330,8 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
           };
 
           source.connect(processor);
+          processor.connect(captureGain);
+          captureGain.connect(audioContextRef.current.destination);
         }
       };
 
@@ -351,6 +341,7 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
 
           if (data.setupComplete) {
             setupComplete = true;
+            sessionReadyRef.current = true;
             setMessages((prev) => [
               ...prev,
               {
@@ -362,12 +353,21 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
             ]);
           }
 
+          if (data.serverContent?.interrupted) {
+            nextAudioStartTimeRef.current = 0;
+            setIsSpeaking(false);
+          }
+
           if (data.toolCall && data.toolCall.functionCalls) {
             handleToolCall(data.toolCall.functionCalls);
           }
 
-          const inputTranscript = data.inputTranscription?.text;
-          const outputTranscript = data.outputTranscription?.text;
+          const inputTranscript =
+            data.inputTranscription?.text ||
+            data.serverContent?.inputTranscription?.text;
+          const outputTranscript =
+            data.outputTranscription?.text ||
+            data.serverContent?.outputTranscription?.text;
           if (inputTranscript || outputTranscript) {
             setMessages((prev) => [
               ...prev,
@@ -416,6 +416,7 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
         setIsListening(false);
         setIsSpeaking(false);
         webSocketRef.current = null;
+        sessionReadyRef.current = false;
         if (event.code !== 1000) {
           setMessages((prev) => [
             ...prev,
@@ -449,6 +450,7 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
       webSocketRef.current.close();
       webSocketRef.current = null;
     }
+    sessionReadyRef.current = false;
     if (mediaStreamRef.current) {
       mediaStreamRef.current.getTracks().forEach((track) => track.stop());
       mediaStreamRef.current = null;
@@ -457,10 +459,15 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
       scriptProcessorRef.current.disconnect();
       scriptProcessorRef.current = null;
     }
+    if (captureGainRef.current) {
+      captureGainRef.current.disconnect();
+      captureGainRef.current = null;
+    }
     if (audioContextRef.current) {
       audioContextRef.current.close().catch(() => {});
       audioContextRef.current = null;
     }
+    nextAudioStartTimeRef.current = 0;
     setIsConnected(false);
     setIsListening(false);
     setIsSpeaking(false);
@@ -484,6 +491,18 @@ export function useVoiceAgent(toolHandlers: ToolCallHandlerProps) {
         webSocketRef.current &&
         webSocketRef.current.readyState === WebSocket.OPEN
       ) {
+        if (!sessionReadyRef.current) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: Math.random().toString(),
+              sender: "gemini",
+              text: "Voice Agent is still starting. Please wait for the ready message.",
+              timestamp: new Date(),
+            },
+          ]);
+          return;
+        }
         const textPayload = {
           clientContent: {
             turns: [
