@@ -32,9 +32,6 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      google-auth-library:
-        specifier: ^11.0.2
-        version: 11.0.2
       hls.js:
         specifier: ^1.6.0
         version: 1.6.16
@@ -56,9 +53,6 @@ importers:
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
-      ws:
-        specifier: ^8.20.0
-        version: 8.21.3
       zustand:
         specifier: ^5.0.6
         version: 5.0.13(@types/react@19.2.14)(react@19.2.6)
