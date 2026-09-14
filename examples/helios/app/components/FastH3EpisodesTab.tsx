@@ -55,7 +55,8 @@ async function fetchToken(): Promise<string> {
 
 /**
  * The private, browser-driven Fast H3 workflow. Composing stays offline;
- * clicking Queue episode is the sole path that starts a GPU session.
+ * users can connect manually from the status panel or let Queue episode
+ * connect on demand.
  */
 export function FastH3EpisodesTab() {
   return (
