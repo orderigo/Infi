@@ -35,8 +35,9 @@ import { makeTag } from "../../lib/fast-h3-episodes/tag";
 //   2. every scene after the first OPENS ON A HARD CUT to a new, fully
 //      described shot. Never extend the previous take.
 //
-// Connection is deliberately lazy: nothing connects until you queue —
-// compose and edit fully offline, then "Queue episode" connects on demand.
+// Connection is lazy by default: compose and edit offline, then "Queue
+// episode" connects on demand. A manual Connect control is also available
+// in the status panel for operators who want to check the session first.
 const MAX_PROMPT_CHARS = 800;
 
 export function EpisodeComposer() {
@@ -173,7 +174,10 @@ export function EpisodeComposer() {
 
   const composed = scenes.length > 0;
   const allScenesWritten =
-    composed && scenes.every((scene) => scene.trim().length > 0);
+    composed &&
+    scenes.every(
+      (scene) => scene.trim().length > 0 && scene.length <= MAX_PROMPT_CHARS,
+    );
 
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-3">

@@ -96,7 +96,7 @@ export function HeliosApp() {
       ) : activeTab === "fast-h3" ? (
         <ShowApp />
       ) : activeTab === "fast-h3-episodes" ? (
-        <FastH3EpisodesTab />
+        <FastH3EpisodesTab onOpenAuth={() => setAuthModalOpen(true)} />
       ) : (
         <CommunityDashboard />
       )}

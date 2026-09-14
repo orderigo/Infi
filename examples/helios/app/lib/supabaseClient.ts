@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
 
 const supabaseUrl =
   process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "";
@@ -19,7 +19,7 @@ export const isSupabaseConfigured = (): boolean => {
   );
 };
 
-export const supabase = createClient(
+export const supabase = createBrowserClient(
   supabaseUrl || "https://placeholder-supabase-url.supabase.co",
   supabaseAnonKey || "placeholder-anon-key",
 );
