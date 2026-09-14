@@ -14,6 +14,7 @@ import { Video } from "./components/Video";
 import { AuthModal } from "./components/AuthModal";
 import { LingbotWorld2Tab } from "./components/lingbot-world-2/LingbotWorld2Tab";
 import { ShowApp } from "./components/fast-h3/ShowApp";
+import { FastH3EpisodesTab } from "./components/FastH3EpisodesTab";
 import { CommunityDashboard } from "./components/CommunityDashboard";
 import { useAuth } from "./lib/useAuth";
 
@@ -67,7 +68,7 @@ function HeliosMainSection({ onOpenAuth }: { onOpenAuth: () => void }) {
 
 export function HeliosApp() {
   const [activeTab, setActiveTab] = useState<
-    "helios" | "explore" | "fast-h3" | "admin"
+    "helios" | "explore" | "fast-h3" | "fast-h3-episodes" | "admin"
   >("helios");
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
@@ -94,6 +95,8 @@ export function HeliosApp() {
         </main>
       ) : activeTab === "fast-h3" ? (
         <ShowApp />
+      ) : activeTab === "fast-h3-episodes" ? (
+        <FastH3EpisodesTab />
       ) : (
         <CommunityDashboard />
       )}

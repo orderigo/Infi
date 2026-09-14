@@ -3,8 +3,10 @@
 import { useAuth } from "../lib/useAuth";
 
 interface HeaderProps {
-  activeTab?: "helios" | "explore" | "fast-h3" | "admin";
-  onTabChange?: (tab: "helios" | "explore" | "fast-h3" | "admin") => void;
+  activeTab?: "helios" | "explore" | "fast-h3" | "fast-h3-episodes" | "admin";
+  onTabChange?: (
+    tab: "helios" | "explore" | "fast-h3" | "fast-h3-episodes" | "admin",
+  ) => void;
   onOpenAuth?: () => void;
 }
 
@@ -53,6 +55,19 @@ export function Header({
             <span>Fast H3</span>
             <span className="hidden rounded bg-emerald-500/20 px-1 text-[9px] text-emerald-300 sm:inline">
               Livestream
+            </span>
+          </button>
+          <button
+            onClick={() => onTabChange?.("fast-h3-episodes")}
+            className={`flex items-center gap-1.5 rounded-md px-3 py-1 font-mono text-xs font-semibold transition ${
+              activeTab === "fast-h3-episodes"
+                ? "border border-brand/30 bg-brand/15 text-brand shadow-[0_0_10px_rgba(251,191,36,0.2)]"
+                : "text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200"
+            }`}
+          >
+            <span>Episodes</span>
+            <span className="hidden rounded bg-brand/15 px-1 text-[9px] text-brand sm:inline">
+              Fast H3
             </span>
           </button>
           <button

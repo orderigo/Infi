@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@reactor-models/fast-h3": "^1.4.0",
     "@reactor-models/helios": "^0.9.0",
     "@reactor-models/lingbot-world-2": "^0.2.5",
     "@reactor-team/js-sdk": "^2.12.0",
