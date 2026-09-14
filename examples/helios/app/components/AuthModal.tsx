@@ -96,8 +96,8 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
 
         <p className="mb-6 text-xs text-zinc-400">
           {isSignUp
-            ? "Create an account to start real-time video generation and use the Gemini Voice Agent."
-            : "Sign in with your email and password to access video generation and the Gemini Voice Agent."}
+            ? "Create an account to start real-time video generation."
+            : "Sign in with your email and password to access video generation."}
         </p>
 
         {errorMsg && (

@@ -11,10 +11,10 @@ import { PromptComposer } from "./components/PromptComposer";
 import { ImageStarter } from "./components/ImageStarter";
 import { SnapClip } from "./components/SnapClip";
 import { Video } from "./components/Video";
-import { VoiceAgentPanel } from "./components/VoiceAgentPanel";
 import { AuthModal } from "./components/AuthModal";
 import { LingbotWorld2Tab } from "./components/lingbot-world-2/LingbotWorld2Tab";
-import { useVoiceAgent } from "./lib/useVoiceAgent";
+import { ShowApp } from "./components/fast-h3/ShowApp";
+import { CommunityDashboard } from "./components/CommunityDashboard";
 import { useAuth } from "./lib/useAuth";
 
 async function fetchToken(): Promise<string> {
@@ -31,28 +31,6 @@ function HeliosMainSection({ onOpenAuth }: { onOpenAuth: () => void }) {
   const { user } = useAuth();
   const { setPrompt, pause, resume, reset, start } = useHelios();
 
-  const voiceAgent = useVoiceAgent({
-    onUpdatePrompt: (newPrompt: string) => {
-      if (!user) {
-        onOpenAuth();
-        return;
-      }
-      setPrompt({ prompt: newPrompt });
-      start();
-    },
-    onPause: () => pause(),
-    onResume: () => resume(),
-    onReset: () => reset(),
-  });
-
-  const handleConnectVoice = () => {
-    if (!user) {
-      onOpenAuth();
-      return;
-    }
-    voiceAgent.connectVoiceAgent();
-  };
-
   return (
     <main className="flex flex-1 flex-col gap-4 p-3 sm:p-4 lg:flex-row lg:gap-6 lg:p-6">
       {/* Video Main Section - Order 1 on mobile, Order 2 on desktop */}
@@ -61,8 +39,7 @@ function HeliosMainSection({ onOpenAuth }: { onOpenAuth: () => void }) {
         {!user && (
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-xl bg-black/70 p-6 text-center backdrop-blur-md">
             <p className="mb-4 font-mono text-sm text-cyan-300">
-              Authentication Required to Generate Real-Time Video & Use Voice
-              Agent
+              Authentication Required to Generate Real-Time Video
             </p>
             <button
               onClick={onOpenAuth}
@@ -78,22 +55,6 @@ function HeliosMainSection({ onOpenAuth }: { onOpenAuth: () => void }) {
       <aside className="order-2 flex w-full flex-col gap-3 sm:gap-4 lg:order-1 lg:w-96 lg:shrink-0">
         <StatusBadge />
         <CommandError />
-        <VoiceAgentPanel
-          isConnected={voiceAgent.isConnected}
-          isListening={voiceAgent.isListening}
-          isSpeaking={voiceAgent.isSpeaking}
-          messages={voiceAgent.messages}
-          lastAction={voiceAgent.lastAction}
-          onConnect={handleConnectVoice}
-          onDisconnect={voiceAgent.disconnectVoiceAgent}
-          onSendCommand={(cmd) => {
-            if (!user) {
-              onOpenAuth();
-              return;
-            }
-            voiceAgent.sendVoiceCommand(cmd);
-          }}
-        />
         <NowPlaying />
         <EvolveScene />
         <PromptComposer />
@@ -105,7 +66,9 @@ function HeliosMainSection({ onOpenAuth }: { onOpenAuth: () => void }) {
 }
 
 export function HeliosApp() {
-  const [activeTab, setActiveTab] = useState<"helios" | "explore">("helios");
+  const [activeTab, setActiveTab] = useState<
+    "helios" | "explore" | "fast-h3" | "admin"
+  >("helios");
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   return (
@@ -125,10 +88,14 @@ export function HeliosApp() {
         <HeliosProvider getJwt={fetchToken}>
           <HeliosMainSection onOpenAuth={() => setAuthModalOpen(true)} />
         </HeliosProvider>
-      ) : (
+      ) : activeTab === "explore" ? (
         <main className="flex flex-1 flex-col p-3 sm:p-4 lg:p-6">
           <LingbotWorld2Tab onOpenAuth={() => setAuthModalOpen(true)} />
         </main>
+      ) : activeTab === "fast-h3" ? (
+        <ShowApp />
+      ) : (
+        <CommunityDashboard />
       )}
     </div>
   );
