@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getAdminUser } from "../../../lib/admin";
 
 const MAX_SCENES = 6;
 const MAX_IDEA_CHARS = 500;
@@ -57,13 +58,22 @@ function config() {
 }
 
 export async function GET() {
+  const { user } = await getAdminUser();
   return NextResponse.json(
-    { enabled: Boolean(config().apiKey) },
+    { enabled: Boolean(user && config().apiKey) },
     { headers: { "Cache-Control": "private, no-store" } },
   );
 }
 
 export async function POST(request: NextRequest) {
+  const { user } = await getAdminUser();
+  if (!user) {
+    return NextResponse.json(
+      { error: "Sign in to use the AI episode writer." },
+      { status: 401, headers: { "Cache-Control": "private, no-store" } },
+    );
+  }
+
   const { apiKey, baseUrl, model } = config();
   if (!apiKey) {
     return NextResponse.json(
@@ -101,26 +111,34 @@ export async function POST(request: NextRequest) {
     "{sceneCount}",
     String(sceneCount),
   ).replaceAll("{targetChars}", String(TARGET_PROMPT_CHARS));
-  const response = await fetch(`${baseUrl}/chat/completions`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: "system", content: system },
-        {
-          role: "user",
-          content: `Idea: ${idea}\n\n[request ${crypto.randomUUID().slice(0, 8)}]`,
-        },
-      ],
-      temperature: 0.8,
-      max_tokens: 1800,
-      response_format: { type: "json_object" },
-    }),
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${baseUrl}/chat/completions`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: "system", content: system },
+          {
+            role: "user",
+            content: `Idea: ${idea}\n\n[request ${crypto.randomUUID().slice(0, 8)}]`,
+          },
+        ],
+        temperature: 0.8,
+        max_tokens: 1800,
+        response_format: { type: "json_object" },
+      }),
+    });
+  } catch {
+    return NextResponse.json(
+      { error: "Could not reach the CometAPI writer service." },
+      { status: 502, headers: { "Cache-Control": "private, no-store" } },
+    );
+  }
 
   if (!response.ok) {
     return NextResponse.json(
