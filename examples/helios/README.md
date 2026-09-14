@@ -21,6 +21,14 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000) and sign in to start using Helios.
 
+## Community-driven AI Story Channel
+
+The **Fast H3** tab is a community-driven AI story channel: viewers pitch ideas in LiveKit chat, repeated ideas accumulate popularity, and an authorized operator can open **Control Room** to promote a popular idea into the streamer's next episode.
+
+Set `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`, and `LIVEKIT_ROOM` for the Helios viewer, and set the same values in `examples/fast-h3-livestream/streamer/.env`. Add the operator's signed-in Supabase email to `ADMIN_EMAILS` in the Helios environment. The operator must sign in before opening **Control Room**.
+
+The current MVP keeps the ranked idea list in the running Next.js process. Use a shared database before deploying multiple instances or requiring durable voting history.
+
 ## Deployment
 
 Railway is configured for this repository: it runs `pnpm --filter helios start` to serve the Next.js application.

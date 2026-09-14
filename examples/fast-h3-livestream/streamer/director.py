@@ -91,6 +91,13 @@ class Director:
             return
         logger.info("[director] accepted idea from %s: %s", author, text)
 
+    def promote_idea(self, text: str) -> None:
+        """Accept an admin-selected community idea as the next episode."""
+        self.submit_idea("community", text)
+        self._publisher.send_chat(
+            "Community pick selected — the next episode is being staged."
+        )
+
     # -------------------------------------------------------- idea worker
 
     async def run_ideas(self) -> None:

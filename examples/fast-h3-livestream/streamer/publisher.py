@@ -106,6 +106,7 @@ class LiveKitPublisher:
         self._audio_source: rtc.AudioSource | None = None
         self._audio_queue: asyncio.Queue[bytes] | None = None
         self._on_chat: Callable[[str, str], None] | None = None
+        self._on_admin_idea: Callable[[str], None] | None = None
         self._tasks: list[asyncio.Task] = []
         self._disconnected = asyncio.Event()
         self._connected = False
@@ -122,6 +123,10 @@ class LiveKitPublisher:
         handler runs on the event loop and must not raise or block.
         """
         self._on_chat = handler
+
+    def on_admin_idea(self, handler: Callable[[str], None]) -> None:
+        """Register the handler for server-originated promoted ideas."""
+        self._on_admin_idea = handler
 
     def send_chat(self, text: str) -> None:
         """Say something in the room chat as the show. Non-blocking."""
@@ -149,6 +154,11 @@ class LiveKitPublisher:
             return
         try:
             message = json.loads(packet.data.decode("utf-8"))
+            if message.get("type") == "promote_idea":
+                text = str(message.get("text", "")).strip()[:_CHAT_TEXT_MAX]
+                if text and self._on_admin_idea is not None:
+                    self._on_admin_idea(text)
+                return
             author = str(message.get("author", "")).strip()[:32]
             text = str(message.get("text", "")).strip()[:_CHAT_TEXT_MAX]
         except (ValueError, UnicodeDecodeError):

@@ -126,6 +126,11 @@ export function ShowApp() {
       room.localParticipant
         .publishData(packet, { reliable: true, topic: CHAT_TOPIC })
         .catch((error) => console.error("chat send failed:", error));
+      void fetch("/api/community/ideas", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ author, text }),
+      }).catch((error) => console.error("idea vote failed:", error));
       // The sender does not receive its own data packet; echo locally.
       appendChat(author, text);
       return true;

@@ -81,6 +81,7 @@ async def main() -> None:
         scene_seconds=config.scene_seconds,
         queue_target=config.queue_target,
     )
+    publisher.on_admin_idea(director.promote_idea)
 
     tasks = [
         asyncio.create_task(link.run(), name="reactor-link"),

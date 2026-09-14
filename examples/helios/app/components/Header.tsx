@@ -3,8 +3,8 @@
 import { useAuth } from "../lib/useAuth";
 
 interface HeaderProps {
-  activeTab?: "helios" | "explore" | "fast-h3";
-  onTabChange?: (tab: "helios" | "explore" | "fast-h3") => void;
+  activeTab?: "helios" | "explore" | "fast-h3" | "admin";
+  onTabChange?: (tab: "helios" | "explore" | "fast-h3" | "admin") => void;
   onOpenAuth?: () => void;
 }
 
@@ -67,6 +67,16 @@ export function Header({
             <span className="rounded bg-amber-500/20 px-1 py-0.5 text-[9px] text-amber-300">
               Lingbot World 2
             </span>
+          </button>
+          <button
+            onClick={() => onTabChange?.("admin")}
+            className={`flex items-center gap-1.5 rounded-md px-3 py-1 font-mono text-xs font-semibold transition ${
+              activeTab === "admin"
+                ? "bg-violet-500/20 text-violet-300 border border-violet-500/30 shadow-[0_0_10px_rgba(139,92,246,0.2)]"
+                : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50"
+            }`}
+          >
+            <span>Control Room</span>
           </button>
         </nav>
       </div>
