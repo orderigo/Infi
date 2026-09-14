@@ -22,7 +22,7 @@ import { makeTag } from "../../lib/fast-h3-episodes/tag";
 // over with no cut to black.
 //
 // Scene text comes from either path:
-//   - "Write scenes with AI": POST /api/fast-h3/upsample (your own OpenAI-compatible
+//   - "Write scenes with AI": POST /api/fast-h3/upsample (your own CometAPI
 //     key, server-side). The route's system prompt enforces the rules below.
 //   - By hand, when no key is configured (or whenever you prefer): the
 //     composer scaffolds one editor per scene and carries the rules as
@@ -239,8 +239,8 @@ export function EpisodeComposer() {
           </button>
           {!writerEnabled && (
             <p className="mt-2 text-[11px] leading-4 text-zinc-600">
-              No <span className="font-mono">OPENAI_API_KEY</span> configured,
-              so scenes are written by hand. Set one in{" "}
+              No <span className="font-mono">COMETAPI_KEY</span> configured, so
+              scenes are written by hand. Set one in{" "}
               <span className="font-mono">.env.local</span> to enable the AI
               writer.
             </p>

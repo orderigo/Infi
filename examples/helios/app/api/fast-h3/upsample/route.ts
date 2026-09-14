@@ -46,13 +46,13 @@ Reply with ONLY this JSON, nothing else:
 The "scenes" array must hold exactly {sceneCount} entries.`;
 
 function config() {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.COMETAPI_KEY;
   return {
     apiKey,
     baseUrl: (
-      process.env.OPENAI_BASE_URL || "https://api.openai.com/v1"
+      process.env.COMETAPI_BASE_URL || "https://api.cometapi.com/v1"
     ).replace(/\/$/, ""),
-    model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+    model: process.env.COMETAPI_MODEL || "deepseek-v4-flash",
   };
 }
 
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
   const { apiKey, baseUrl, model } = config();
   if (!apiKey) {
     return NextResponse.json(
-      { error: "No OPENAI_API_KEY configured — write the scenes by hand." },
+      { error: "No COMETAPI_KEY configured — write the scenes by hand." },
       { status: 503 },
     );
   }

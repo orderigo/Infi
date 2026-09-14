@@ -1,5 +1,5 @@
 // The curated content library: episode ideas for the AI writer, and one
-// fully hand-written episode for running without an OPENAI_API_KEY.
+// fully hand-written episode for running without a COMETAPI_KEY.
 //
 // The hand-written scenes model the two rules that make chained episodes
 // look right on fast-h3 (each scene's clip opens on the previous clip's
@@ -16,7 +16,7 @@
 
 export interface EpisodeIdea {
   title: string; // short label used on the preset button
-  idea: string; // what gets sent to /api/upsample
+  idea: string; // what gets sent to /api/fast-h3/upsample
 }
 
 export const EPISODE_IDEAS: ReadonlyArray<EpisodeIdea> = [
