@@ -3,8 +3,8 @@
 import { useAuth } from "../lib/useAuth";
 
 interface HeaderProps {
-  activeTab?: "helios" | "explore";
-  onTabChange?: (tab: "helios" | "explore") => void;
+  activeTab?: "helios" | "explore" | "fast-h3";
+  onTabChange?: (tab: "helios" | "explore" | "fast-h3") => void;
   onOpenAuth?: () => void;
 }
 
@@ -40,6 +40,19 @@ export function Header({
             <span>Helios AI</span>
             <span className="hidden text-[10px] font-normal opacity-70 sm:inline">
               × Gemini
+            </span>
+          </button>
+          <button
+            onClick={() => onTabChange?.("fast-h3")}
+            className={`flex items-center gap-1.5 rounded-md px-3 py-1 font-mono text-xs font-semibold transition ${
+              activeTab === "fast-h3"
+                ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.2)]"
+                : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50"
+            }`}
+          >
+            <span>Fast H3</span>
+            <span className="hidden rounded bg-emerald-500/20 px-1 text-[9px] text-emerald-300 sm:inline">
+              Livestream
             </span>
           </button>
           <button

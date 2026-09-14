@@ -13,6 +13,7 @@ import { SnapClip } from "./components/SnapClip";
 import { Video } from "./components/Video";
 import { AuthModal } from "./components/AuthModal";
 import { LingbotWorld2Tab } from "./components/lingbot-world-2/LingbotWorld2Tab";
+import { ShowApp } from "./components/fast-h3/ShowApp";
 import { useAuth } from "./lib/useAuth";
 
 async function fetchToken(): Promise<string> {
@@ -64,7 +65,9 @@ function HeliosMainSection({ onOpenAuth }: { onOpenAuth: () => void }) {
 }
 
 export function HeliosApp() {
-  const [activeTab, setActiveTab] = useState<"helios" | "explore">("helios");
+  const [activeTab, setActiveTab] = useState<"helios" | "explore" | "fast-h3">(
+    "helios",
+  );
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   return (
@@ -84,10 +87,12 @@ export function HeliosApp() {
         <HeliosProvider getJwt={fetchToken}>
           <HeliosMainSection onOpenAuth={() => setAuthModalOpen(true)} />
         </HeliosProvider>
-      ) : (
+      ) : activeTab === "explore" ? (
         <main className="flex flex-1 flex-col p-3 sm:p-4 lg:p-6">
           <LingbotWorld2Tab onOpenAuth={() => setAuthModalOpen(true)} />
         </main>
+      ) : (
+        <ShowApp />
       )}
     </div>
   );

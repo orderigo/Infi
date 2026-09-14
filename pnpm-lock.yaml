@@ -139,6 +139,12 @@ importers:
       hls.js:
         specifier: ^1.6.0
         version: 1.6.16
+      livekit-client:
+        specifier: ^2.22.3
+        version: 2.22.3(@types/dom-mediacapture-record@1.0.22)
+      livekit-server-sdk:
+        specifier: ^2.19.0
+        version: 2.19.0
       next:
         specifier: ^15.5.0
         version: 15.5.9(@babel/core@7.29.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
