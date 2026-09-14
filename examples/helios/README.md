@@ -21,6 +21,12 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000) and sign in to start using Helios.
 
+## Fast H3 Episodes
+
+The **Episodes** tab adds the canonical, private Fast H3 compose-and-play workflow to the root application. Draft an episode from an idea with the optional server-side AI writer or write scenes by hand, then queue one to six scenes as a continuous video. The tab connects only when the episode is queued, capacity-checks the full episode, chains each later scene from the previous clip's final frame, mirrors both model queues, and supports synchronized playback and a 10-second MP4 capture.
+
+Every later scene must begin with a fully described **hard cut** and repeat the setting, subjects, lighting, and style. Fast H3 only reads the current scene prompt; these constraints preserve story continuity without gradual visual degradation across a chain. `REACTOR_API_KEY` is required and always remains server-side. Add the optional `COMETAPI_KEY`, `COMETAPI_BASE_URL`, and `COMETAPI_MODEL` settings from `.env.example` to enable AI-written scene prompts through CometAPI's OpenAI-compatible Chat Completions API. The default model is `deepseek-v4-flash`; manual composition remains fully available without a CometAPI key.
+
 ## Community-driven AI Story Channel
 
 The **Fast H3** tab is a community-driven AI story channel: viewers pitch ideas in LiveKit chat, repeated ideas accumulate popularity, and an authorized operator can open **Control Room** to promote a popular idea into the streamer's next episode.
@@ -47,4 +53,4 @@ Railway is configured for this repository: it runs `pnpm --filter helios start` 
 
 ## Tech stack
 
-Next.js 15 · React 19 · TypeScript · Tailwind CSS v4 · Supabase · [`@reactor-models/helios`](https://www.npmjs.com/package/@reactor-models/helios) · [`@reactor-team/js-sdk`](https://www.npmjs.com/package/@reactor-team/js-sdk)
+Next.js 15 · React 19 · TypeScript · Tailwind CSS v4 · Supabase · [`@reactor-models/helios`](https://www.npmjs.com/package/@reactor-models/helios) · [`@reactor-models/fast-h3`](https://www.npmjs.com/package/@reactor-models/fast-h3) · [`@reactor-team/js-sdk`](https://www.npmjs.com/package/@reactor-team/js-sdk)
